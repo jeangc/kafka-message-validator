@@ -1,7 +1,8 @@
 import kafka.Reader;
 import kafka.Writer;
-import validators.CustomValidator;
+import validators.ListValidator;
 import validators.JsonValidator;
+import validators.PositiveNumberValidator;
 import validators.Validator;
 
 import java.util.Arrays;
@@ -16,10 +17,9 @@ public class Main {
 
         Writer writer = new Writer(servers);
 
-
         ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(2);
 
-        executor.submit(() -> {
+        executor.execute(() -> {
             Reader reader = new Reader(servers, "my-first-group", "currency-messages");
             Collection<Validator> validators = Collections.singletonList(
                     new JsonValidator(Arrays.asList("event", "customer", "currency", "timestamp"))
@@ -28,9 +28,13 @@ public class Main {
             reader.run(p);
         });
 
-        executor.submit(() -> {
+        executor.execute(() -> {
             Reader reader = new Reader(servers, "my-second-group", "custom-messages");
-            Collection<Validator> validators = Collections.singletonList(new CustomValidator());
+            Collection<Validator> validators = Arrays.asList(
+                    new JsonValidator(Arrays.asList("action", "amount")),
+                    new ListValidator("action", Arrays.asList("sum", "subtract")),
+                    new PositiveNumberValidator("amount")
+            );
             Processor p = new Processor(writer, validators, "valid", "invalid");
             reader.run(p);
         });

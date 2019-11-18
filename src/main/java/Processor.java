@@ -24,6 +24,8 @@ public class Processor implements kafka.Processor {
 
     public void process(String message) {
         try {
+            System.out.printf("Processing:(%s)\n", message);
+
             for (Validator validator : validators) {
                 validator.validate(message);
             }
@@ -39,8 +41,6 @@ public class Processor implements kafka.Processor {
                 e1.printStackTrace();
             }
         }
-
-
-        System.out.printf("Processing:(%s)\n", message);
+;
     }
 }
