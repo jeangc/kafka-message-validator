@@ -1,3 +1,5 @@
+package kafka;
+
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -9,7 +11,7 @@ public class Writer {
 
     private final KafkaProducer<String, String> producer;
 
-    Writer(String servers) {
+    public Writer(String servers) {
         this.producer = new KafkaProducer<>(createConfig(servers));
     }
 

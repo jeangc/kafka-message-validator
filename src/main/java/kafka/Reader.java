@@ -1,3 +1,5 @@
+package kafka;
+
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -9,18 +11,18 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
 
-class Reader {
+public class Reader {
     private String servers;
     private String groupId;
     private String topic;
 
-    Reader(String servers, String groupId, String topic) {
+    public Reader(String servers, String groupId, String topic) {
         this.servers = servers;
         this.groupId = groupId;
         this.topic = topic;
     }
 
-    void run(Processor processor) {
+    public void run(Processor processor) {
         Properties props = createConfig();
         Consumer<String, String> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Collections.singletonList(this.topic));
