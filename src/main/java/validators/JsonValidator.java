@@ -3,19 +3,36 @@ package validators;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class JsonValidator implements Validator {
+    private List<String> fields;
     private ObjectMapper mapper = new ObjectMapper();
+
+    public JsonValidator(List<String> fields) {
+        this.fields = fields;
+    }
 
     public void validate(String message) throws InvalidException {
         try {
             JsonNode rootNode = mapper.readTree(message);
 
-            String error = "";
-            error = error.concat(validateField(rootNode, "event"));
+            if (rootNode == null) {
+                throw new InvalidException("Empty message");
+            }
 
-            if (error.length() > 0) {
-                throw new InvalidException(error);
+            ArrayList<String> errors = new ArrayList<>();
+
+            for (String field : fields) {
+                String error = validateField(rootNode, field);
+                if (error != null) {
+                    errors.add(error);
+                }
+            }
+
+            if (errors.size() > 0) {
+                throw new InvalidException(String.join(", ", errors));
             }
 
         } catch (IOException e) {
@@ -25,9 +42,9 @@ public class JsonValidator implements Validator {
 
     private String validateField(JsonNode rootNode, String path) {
         if (!rootNode.has(path) || rootNode.path(path).isMissingNode()) {
-            return path.concat(" is missing.");
+            return path.concat(" is missing");
         }
 
-        return "";
+        return null;
     }
 }
