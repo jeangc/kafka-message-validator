@@ -20,7 +20,7 @@ class Reader {
         this.topic = topic;
     }
 
-    void run() {
+    void run(Processor processor) {
         Properties props = createConfig();
         Consumer<String, String> consumer = new KafkaConsumer<>(props);
         consumer.subscribe(Collections.singletonList(this.topic));
@@ -29,11 +29,7 @@ class Reader {
             final ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
 
             records.forEach(record -> {
-                System.out.printf("Consumer Record:(%s, %s, %d, %d)\n",
-                        record.key(),
-                        record.value(),
-                        record.partition(),
-                        record.offset());
+                processor.process(record.value());
             });
         }
     }
