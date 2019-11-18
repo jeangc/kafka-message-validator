@@ -9,9 +9,25 @@ public class JsonValidator implements Validator {
 
     public void validate(String message) throws InvalidException {
         try {
-            mapper.readValue(message, JsonNode.class);
+            JsonNode rootNode = mapper.readTree(message);
+
+            String error = "";
+            error = error.concat(validateField(rootNode, "event"));
+
+            if (error.length() > 0) {
+                throw new InvalidException(error);
+            }
+
         } catch (IOException e) {
             throw new InvalidException("Invalid JSON");
         }
+    }
+
+    private String validateField(JsonNode rootNode, String path) {
+        if (!rootNode.has(path) || rootNode.path(path).isMissingNode()) {
+            return path.concat(" is missing.");
+        }
+
+        return "";
     }
 }
